@@ -1,0 +1,16 @@
+.\obj\usart1_dma.o: ..\Source\BSP\usart1_dma.c
+.\obj\usart1_dma.o: ..\Source\BSP\usart1_dma.h
+.\obj\usart1_dma.o: ..\Source\STM32F10xLib\M3\stm32f10x.h
+.\obj\usart1_dma.o: ..\Source\STM32F10xLib\M3\core_cm3.h
+.\obj\usart1_dma.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\obj\usart1_dma.o: ..\Source\STM32F10xLib\M3\core_cmInstr.h
+.\obj\usart1_dma.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include\cmsis_armcc.h
+.\obj\usart1_dma.o: ..\Source\STM32F10xLib\M3\core_cmFunc.h
+.\obj\usart1_dma.o: ..\Source\STM32F10xLib\M3\system_stm32f10x.h
+.\obj\usart1_dma.o: ..\Source\STM32F10xLib\M3\stm32f10x_conf.h
+.\obj\usart1_dma.o: ..\Source\STM32F10xLib\inc\stm32f10x_usart.h
+.\obj\usart1_dma.o: ..\Source\STM32F10xLib\inc\stm32f10x_rcc.h
+.\obj\usart1_dma.o: ..\Source\STM32F10xLib\inc\stm32f10x_gpio.h
+.\obj\usart1_dma.o: ..\Source\STM32F10xLib\inc\stm32f10x_dma.h
+.\obj\usart1_dma.o: ..\Source\STM32F10xLib\inc\misc.h
+.\obj\usart1_dma.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

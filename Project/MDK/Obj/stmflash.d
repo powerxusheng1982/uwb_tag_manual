@@ -1,0 +1,11 @@
+.\obj\stmflash.o: ..\Source\BSP\stmflash.c
+.\obj\stmflash.o: ..\Source\BSP\stmflash.h
+.\obj\stmflash.o: ..\Source\STM32F10xLib\M3\stm32f10x.h
+.\obj\stmflash.o: ..\Source\STM32F10xLib\M3\core_cm3.h
+.\obj\stmflash.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\obj\stmflash.o: ..\Source\STM32F10xLib\M3\core_cmInstr.h
+.\obj\stmflash.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include\cmsis_armcc.h
+.\obj\stmflash.o: ..\Source\STM32F10xLib\M3\core_cmFunc.h
+.\obj\stmflash.o: ..\Source\STM32F10xLib\M3\system_stm32f10x.h
+.\obj\stmflash.o: ..\Source\STM32F10xLib\M3\stm32f10x_conf.h
+.\obj\stmflash.o: ..\Source\STM32F10xLib\inc\stm32f10x_flash.h

@@ -1,0 +1,13 @@
+.\obj\device_info.o: ..\Source\USER\DEVICE_INFO.c
+.\obj\device_info.o: ..\Source\USER\device_info.h
+.\obj\device_info.o: ..\Source\STM32F10xLib\M3\stm32f10x.h
+.\obj\device_info.o: ..\Source\STM32F10xLib\M3\core_cm3.h
+.\obj\device_info.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\obj\device_info.o: ..\Source\STM32F10xLib\M3\core_cmInstr.h
+.\obj\device_info.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include\cmsis_armcc.h
+.\obj\device_info.o: ..\Source\STM32F10xLib\M3\core_cmFunc.h
+.\obj\device_info.o: ..\Source\STM32F10xLib\M3\system_stm32f10x.h
+.\obj\device_info.o: ..\Source\STM32F10xLib\M3\stm32f10x_conf.h
+.\obj\device_info.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\obj\device_info.o: ..\Source\BSP\stmflash.h
+.\obj\device_info.o: ..\Source\Drive\oled.h

@@ -1,0 +1,12 @@
+.\obj\led.o: ..\Source\BSP\led.c
+.\obj\led.o: ..\Source\BSP\led.h
+.\obj\led.o: ..\Source\STM32F10xLib\M3\stm32f10x.h
+.\obj\led.o: ..\Source\STM32F10xLib\M3\core_cm3.h
+.\obj\led.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\obj\led.o: ..\Source\STM32F10xLib\M3\core_cmInstr.h
+.\obj\led.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include\cmsis_armcc.h
+.\obj\led.o: ..\Source\STM32F10xLib\M3\core_cmFunc.h
+.\obj\led.o: ..\Source\STM32F10xLib\M3\system_stm32f10x.h
+.\obj\led.o: ..\Source\STM32F10xLib\M3\stm32f10x_conf.h
+.\obj\led.o: ..\Source\STM32F10xLib\inc\stm32f10x_gpio.h
+.\obj\led.o: ..\Source\STM32F10xLib\inc\stm32f10x_rcc.h
