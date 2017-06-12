@@ -71,22 +71,21 @@ int main(void)
 					
 					Get_Best_Position();//¼ÆËã×ø±ê
 					
-				/*	sprintf(buf, "vec0 %f, %f, %f\r\n", m_anchorArray[0].x, m_anchorArray[0].y, m_anchorArray[0].z);
-					USB_TxWrite(buf, strlen(buf));
-					sprintf(buf, "vec1 %f, %f, %f\r\n", m_anchorArray[1].x, m_anchorArray[1].y, m_anchorArray[1].z);
-					USB_TxWrite(buf, strlen(buf));
-					sprintf(buf, "vec2 %f, %f, %f\r\n", m_anchorArray[2].x, m_anchorArray[2].y, m_anchorArray[2].z);
-					USB_TxWrite(buf, strlen(buf));
-					sprintf(buf, "vec3 %f, %f, %f\r\n", m_anchorArray[3].x, m_anchorArray[3].y, m_anchorArray[3].z);
-					USB_TxWrite(buf, strlen(buf));*/
-					
+					//sprintf(buf, "vec0 %f, %f, %f\r\n", m_anchorArray[0].x, m_anchorArray[0].y, m_anchorArray[0].z);
+					//USB_TxWrite(buf, strlen(buf));
+					//sprintf(buf, "vec1 %f, %f, %f\r\n", m_anchorArray[1].x, m_anchorArray[1].y, m_anchorArray[1].z);
+					//USB_TxWrite(buf, strlen(buf));
+					//sprintf(buf, "vec2 %f, %f, %f\r\n", m_anchorArray[2].x, m_anchorArray[2].y, m_anchorArray[2].z);
+					//USB_TxWrite(buf, strlen(buf));
+					//sprintf(buf, "vec3 %f, %f, %f\r\n", m_anchorArray[3].x, m_anchorArray[3].y, m_anchorArray[3].z);
+					//USB_TxWrite(buf, strlen(buf));
 							
 					OLED_ShowFloat(50,4,fabs(report.x), 2, 12);
 					OLED_ShowFloat(50,5,fabs(report.y), 2, 12);
 					OLED_ShowFloat(50,6,fabs(report.z), 2, 12);	
 					
 					sprintf(buf, "CAL POS %7.3f %7.3f %7.3f\r\n", report.x, report.y, report.z);
-					Usart2_PutStr(buf);
+					Usart2_Send(buf, strlen(buf));
 				}
         if (++count > 0x2FFF) count = 0;
 				
