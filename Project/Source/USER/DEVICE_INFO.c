@@ -33,6 +33,10 @@ u8 Check_cmd(u8* RXbuff)
 			return SVIP;
 	if( (RXbuff[3]=='S') &&(RXbuff[4]=='V') &&(RXbuff[5]=='P') &&(RXbuff[6]=='T'))
 			return SVPT;
+	
+	if( (RXbuff[0]=='P') &&(RXbuff[1]=='O') &&(RXbuff[2]=='S'))
+			return POS;
+		
 	return 0;
 }
 
@@ -42,7 +46,7 @@ u8 Get_UniqueID(void)
 	CpuID[0]=*(vu32*)(0x1ffff7e8);
 	CpuID[1]=*(vu32*)(0x1ffff7ec);
 	CpuID[2]=*(vu32*)(0x1ffff7f0);
-	sprintf((unsigned char*)&buff_sn[0],"AT+SN=%08x-%08x-%08x-1-1.0\r\n",CpuID[0],CpuID[1],CpuID[2]);
+	sprintf((char*)&buff_sn[0],"AT+SN=%08x-%08x-%08x-1-1.0\r\n",CpuID[0],CpuID[1],CpuID[2]);
 	return 1;
 }
 

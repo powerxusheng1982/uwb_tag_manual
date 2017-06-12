@@ -9,6 +9,9 @@
 #define PSWD 0x05
 #define SVIP 0x06
 #define SVPT 0x07
+
+#define POS  0x08
+
 typedef struct
 {
 	u16 flag;

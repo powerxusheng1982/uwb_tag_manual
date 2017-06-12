@@ -41,7 +41,7 @@ void TIM2_IRQHandler(void)   //TIM2中断
 {
 	if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)  //检查TIM2更新中断发生与否
 	{
-			TIM_ClearITPendingBit(TIM2, TIM_IT_Update  );   //清除TIM2更新中断标志 
+			TIM_ClearITPendingBit(TIM2, TIM_IT_Update);   //清除TIM2更新中断标志 
 
 	}
 }

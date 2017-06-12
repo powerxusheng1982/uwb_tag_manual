@@ -6,16 +6,15 @@
 #include "misc.h"
 #include "stdio.h"
 
-u8   DMA_Rece_Buf[DMA_Rec_Len];	   //DMA接收串口数据缓冲区
-u16  Usart1_Rec_Cnt=0;             //本帧数据长度	
+u8   DMA_Recv_Buf[DMA_Rec_Len];	   //DMA接收串口数据缓冲区
+u16  Usart1_Rec_Cnt = 0;           //本帧数据长度	
 	
-#if 1
+#if 0
 #pragma import(__use_no_semihosting)             
 //标准库需要的支持函数                 
 struct __FILE 
 { 
-	int handle; 
-
+	int handle;
 }; 
 
 FILE __stdout;       
@@ -33,12 +32,10 @@ int fputc(int ch, FILE *f)
 }
 #endif 
 
-
-
 //初始化IO 串口1 
 //bound:波特率
 void uart1_init(u32 bound)
-	{
+{
     //GPIO端口设置
     GPIO_InitTypeDef GPIO_InitStructure;
 	  USART_InitTypeDef USART_InitStructure;
@@ -55,7 +52,7 @@ void uart1_init(u32 bound)
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//复用推挽输出
     GPIO_Init(GPIOA, &GPIO_InitStructure); //初始化PA9
-   
+
     //USART1_RX	  PA.10
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//浮空输入
@@ -80,11 +77,11 @@ void uart1_init(u32 bound)
     USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);//开启空闲中断
 		USART_DMACmd(USART1,USART_DMAReq_Rx,ENABLE);   //使能串口1 DMA接收
     USART_Cmd(USART1, ENABLE);                    //使能串口 
- 
+
     //相应的DMA配置
 		DMA_DeInit(DMA1_Channel5);   //将DMA的通道5寄存器重设为缺省值  串口1对应的是DMA通道5
 		DMA_InitStructure.DMA_PeripheralBaseAddr = (u32)&USART1->DR;  //DMA外设ADC基地址
-		DMA_InitStructure.DMA_MemoryBaseAddr = (u32)DMA_Rece_Buf;  //DMA内存基地址
+		DMA_InitStructure.DMA_MemoryBaseAddr = (u32)DMA_Recv_Buf;  //DMA内存基地址
 		DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;  //数据传输方向，从外设读取发送到内存
 		DMA_InitStructure.DMA_BufferSize = DMA_Rec_Len;  //DMA通道的DMA缓存的大小
 		DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;  //外设地址寄存器不变
@@ -97,11 +94,10 @@ void uart1_init(u32 bound)
 		DMA_Init(DMA1_Channel5, &DMA_InitStructure);  //根据DMA_InitStruct中指定的参数初始化DMA的通道USART1_Tx_DMA_Channel所标识的寄存器
 				
     DMA_Cmd(DMA1_Channel5, ENABLE);  //正式驱动DMA传输
-
 }
 
 //重新恢复DMA指针
-void MYDMA_Enable(DMA_Channel_TypeDef*DMA_CHx)
+void RecvDMA_Enable(DMA_Channel_TypeDef*DMA_CHx)
 { 
 	DMA_Cmd(DMA_CHx, DISABLE );  //关闭USART1 TX DMA1 所指示的通道      
  	DMA_SetCurrDataCounter(DMA_CHx,DMA_Rec_Len);//DMA通道的DMA缓存的大小
@@ -114,7 +110,7 @@ void MYDMA_Enable(DMA_Channel_TypeDef*DMA_CHx)
 void Usart1_Send(u8 *buf,u8 len)
 {
 	u8 t;
-  	for(t=0;t<len;t++)		//循环发送数据
+  for(t=0;t<len;t++)		//循环发送数据
 	{		   
 		while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);	  
 		USART_SendData(USART1,buf[t]);
@@ -122,23 +118,28 @@ void Usart1_Send(u8 *buf,u8 len)
 	while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);		
 }
 
+volatile u8 Data_Process_Buf[DMA_Rec_Len];	//处理数据缓冲区
+volatile u8 DataBuf_IsValid = 0;						//表明缓冲中的数据是否有效
+volatile u8 DataBuf_IsBusy 	= 0;						//表明缓冲中的数据是否正忙
+
 //串口中断函数
 void USART1_IRQHandler(void)                	//串口1中断服务程序
 {
 	if(USART_GetITStatus(USART1, USART_IT_IDLE) != RESET)  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
-		{
+	{
 		  USART_ReceiveData(USART1);//读取数据 注意：这句必须要，否则不能够清除中断标志位。我也不知道为啥！
-		  Usart1_Rec_Cnt = DMA_Rec_Len-DMA_GetCurrDataCounter(DMA1_Channel5);	//算出接本帧数据长度
- 		  
-			//***********帧数据处理函数************//
-//			printf ("The lenght:%d\r\n",Usart1_Rec_Cnt);
-//			printf ("The data:\r\n");
-//			Usart1_Send(DMA_Rece_Buf,Usart1_Rec_Cnt);
-//			printf ("\r\nOver! \r\n");
-			//*************************************//
-			USART_ClearITPendingBit(USART1, USART_IT_IDLE);         //清除中断标志
-			MYDMA_Enable(DMA1_Channel5);                   //恢复DMA指针，等待下一次的接收
-     } 
+		  Usart1_Rec_Cnt = DMA_Rec_Len - DMA_GetCurrDataCounter(DMA1_Channel5);	//算出接本帧数据长度
+	
+			if (DataBuf_IsBusy == 0)
+			{
+				DataBuf_IsValid = 0;
+				memcpy(Data_Process_Buf, DMA_Recv_Buf, Usart1_Rec_Cnt);
+				DataBuf_IsValid = 1;
+			}
+
+			USART_ClearITPendingBit(USART1, USART_IT_IDLE);  //清除中断标志
+			RecvDMA_Enable(DMA1_Channel5);                   //恢复DMA指针，等待下一次的接收
+	} 
 } 
 
 

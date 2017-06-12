@@ -192,7 +192,7 @@ int trilateration(vec3d *const result1,
 	double	h, i, j, x, y, z, t;
 	double	mu1, mu2, mu;
 	int result;
-  	int count4 = 0;
+  int count4 = 0;
 	double rr4 = r4;
 	/*********** FINDING TWO POINTS FROM THE FIRST THREE SPHERES **********/
 
@@ -701,36 +701,52 @@ int GetLocation(vec3d *best_solution, int use4thAnchor, vec3d* anchorArray, int 
 	return -1;
 }
 
-vec3d report;
 int Range_deca[4];
+vec3d report;
+vec3d m_anchorArray[4];
+
+void Reference_Position_Init(void)
+{
+		m_anchorArray[0].x = -2.500f; //anchor0.x uint:m
+    m_anchorArray[0].y = 0.000f; //anchor0.y uint:m
+    m_anchorArray[0].z = 2.000f; //anchor0.z uint:m
+
+    m_anchorArray[1].x = -6.80f; //anchor1.x uint:m
+    m_anchorArray[1].y = 0.000f; //anchor1.y uint:m
+    m_anchorArray[1].z = 2.000f; //anchor1.z uint:m
+
+    m_anchorArray[2].x = 0.000f; //anchor2.x uint:m
+    m_anchorArray[2].y = -10.8f; //anchor2.y uint:m
+    m_anchorArray[2].z = 2.000f; //anchor2.z uint:m
+
+    m_anchorArray[3].x = 0.000f; //anchor3.x uint:m
+    m_anchorArray[3].y = -5.80f; //anchor3.y uint:m
+    m_anchorArray[3].z = 2.000f; //anchor3.z uint:m
+}
+
+void Reference_Position_Set(int index, vec3d anchor)
+{
+		if (index > 3)
+			return;
+
+		m_anchorArray[index].x = anchor.x; //anchor0.x uint:m
+		m_anchorArray[index].y = anchor.y; //anchor0.y uint:m
+		m_anchorArray[index].z = anchor.z; //anchor0.z uint:m
+}
+
+vec3d Reference_Position_Get(int index)
+{
+	vec3d pos = {0};
+	if (index > 3)
+		return pos;
+	
+	return m_anchorArray[index];
+}
+
 int Get_Best_Position(void)
 {
 	  int result = 0;
 
-		vec3d anchorArray[4];
-
-   
-		anchorArray[0].x = -2.500f; //anchor0.x uint:m
-    anchorArray[0].y = 0.000f; //anchor0.y uint:m
-    anchorArray[0].z = 2.000f; //anchor0.z uint:m
-
-    anchorArray[1].x = -6.80f; //anchor1.x uint:m
-    anchorArray[1].y = 0.000f; //anchor1.y uint:m
-    anchorArray[1].z = 2.000f; //anchor1.z uint:m
-
-    anchorArray[2].x = 0.000f; //anchor2.x uint:m
-    anchorArray[2].y = -10.8f; //anchor2.y uint:m
-    anchorArray[2].z = 2.000f; //anchor2.z uint:m
-
-    anchorArray[3].x = 0.000f; //anchor3.x uint:m
-    anchorArray[3].y = -5.80f; //anchor3.y uint:m
-    anchorArray[3].z = 2.000f; //anchor3.z uint:m
-		
-//    Range_deca[0] = 5784; //tag to A0 distance
-//    Range_deca[1] = 7021; //tag to A1 distance
-//		Range_deca[2] = 5995; //tag to A2 distance
-//		Range_deca[3] = 7021; //tag to A3 distance 
-	 
-		result = GetLocation(&report, 0, &anchorArray[0], &Range_deca[0]);	
+		result = GetLocation(&report, 0, &m_anchorArray[0], &Range_deca[0]);	
 		return result;
 }
