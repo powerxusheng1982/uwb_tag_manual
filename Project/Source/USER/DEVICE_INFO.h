@@ -11,6 +11,7 @@
 #define SVPT 0x07
 
 #define POS  0x08
+#define BEEP 0x09
 
 typedef struct
 {

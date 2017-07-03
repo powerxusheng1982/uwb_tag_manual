@@ -36,6 +36,9 @@ u8 Check_cmd(u8* RXbuff)
 	
 	if( (RXbuff[0]=='P') &&(RXbuff[1]=='O') &&(RXbuff[2]=='S'))
 			return POS;
+	
+	if( (RXbuff[0]=='B') &&(RXbuff[1]=='E') &&(RXbuff[2]=='E') &&(RXbuff[3]=='P'))
+			return BEEP;
 		
 	return 0;
 }

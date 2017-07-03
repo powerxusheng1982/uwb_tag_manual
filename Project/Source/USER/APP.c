@@ -21,17 +21,33 @@
 #define PARAMS_DATA_ADDR  0x0800FC00
 #define PARAMS_FLAG_VALID 0x1234
 
+#define ALARM_FLAG_ADDR 0x0800F000
+#define ALARM_DATA_ADDR 0x0800F400
+
 
 void Positon_Input_Process(void);
 void Command_Input_Process(void);
 void Reference_Position_ReadFromFlash(void);
 void Reference_Position_WriteToFlash(void);
 
+extern void beep_Init(void);
+extern void beep_SetFreq(uint16_t freq);
+extern void beep_Stop(void);
+
+uint32_t Position_Is_AtAlarm(vec3d inBaseVecOne, vec3d inBaseVecTwo, vec3d inCalcVec);
+uint8_t AlarmArea_ReadFromFlash(int index, vec3d* inBaseVecOne, vec3d* inBaseVecTwo);
+void AlarmArea_WriteToFlash(int index, vec3d* inBaseVecOne, vec3d* inBaseVecTwo);
+void AlarmArea_Init(void);
+
+vec3d alarm[4][2];
+uint8_t isAlarmValid[4] = {0};
+
 int main(void)
 {
 //		u8 datatemp[SIZE];
     uint32_t count = 0;
-		uint8_t buf[200] = {0};
+		//uint8_t buf[200] = {0};
+		
 		
     BSP_Init();
 		LED_Init();
@@ -40,13 +56,23 @@ int main(void)
 		
     USB_Config();
 		uart1_init(115200);
-		Usart2_Init(115200);
+//		Usart2_Init(115200);
 //		TIM2_Int_Init(9999,7199);//20Khz的计数频率  1秒翻转一次
-		
+
+//---------------------------------////////////
+		beep_Init();		
+		beep_SetFreq(5000);
+		delay_ms(1000);
+		beep_Stop();
+	
+		AlarmArea_Init();
+	
+//----------------------------------//////////////
 		OLED_Init();
 		
 		Reference_Position_Init();
 		Reference_Position_ReadFromFlash();		
+				
 //		Flash_Configuration();
 //		OLED_ShowNum(40,2,sys_para.start_count ,4,16);
 
@@ -67,6 +93,9 @@ int main(void)
 
         if (count >= 0x2FFE) 
 				{
+					int i = 0;
+					int beep = 0;
+					
 					LED_OFF(eLED_0);
 					
 					Get_Best_Position();//计算坐标
@@ -84,8 +113,29 @@ int main(void)
 					OLED_ShowFloat(50,5,fabs(report.y), 2, 12);
 					OLED_ShowFloat(50,6,fabs(report.z), 2, 12);	
 					
-					sprintf(buf, "CAL POS %7.3f %7.3f %7.3f\r\n", report.x, report.y, report.z);
-					Usart2_Send(buf, strlen(buf));
+					//sprintf(buf, "CAL POS %7.3f %7.3f %7.3f\r\n", report.x, report.y, report.z);
+					//Usart2_Send(buf, strlen(buf));
+
+					for (i = 0; i<4; i++)
+					{
+						if (isAlarmValid[i] == 1)
+						{
+							if (Position_Is_AtAlarm(alarm[i][0], alarm[i][1], report)==1)
+							{
+								beep = 1;
+							}
+						}
+					}
+					
+					if (beep == 1)
+					{
+						beep_Stop();
+						beep_SetFreq(5000);
+					}
+					else
+					{
+						beep_Stop();
+					}
 				}
         if (++count > 0x2FFF) count = 0;
 				
@@ -224,6 +274,34 @@ void Command_Input_Process(void)
 			Reference_Position_Set(index, anchor);		
 			Reference_Position_WriteToFlash();
 		}
+		
+		/* BEEP A0 xxxxxx yyyyyy XXXXXX YYYYYY */
+		if(Check_cmd(buf) == BEEP)
+		{
+			sscanf((char*)buf+6, "%x", &index);
+			
+			sscanf((char*)buf+8, "%d", &x);
+			sscanf((char*)buf+15, "%d", &y);
+			
+			if ((index >=0) && (index <=3))
+			{
+				alarm[index][0].x = x/1000.0;
+				alarm[index][0].y = y/1000.0;
+			
+				sscanf((char*)buf+22, "%d", &x);
+				sscanf((char*)buf+29, "%d", &y);
+			
+				alarm[index][1].x = x/1000.0;
+				alarm[index][1].y = y/1000.0;
+				
+				isAlarmValid[index] = 1;
+				
+				AlarmArea_WriteToFlash(index, &alarm[index][0], &alarm[index][1]);
+			}
+
+			
+		}
+		
 	}
 }
 
@@ -270,3 +348,51 @@ void Reference_Position_WriteToFlash(void)
 	STMFLASH_Write(PARAMS_FLAG_ADDR, &usFlag, 1);
 }
 
+uint32_t Position_Is_AtAlarm(vec3d inBaseVecOne, vec3d inBaseVecTwo, vec3d inCalcVec)
+{
+	if(((inBaseVecOne.x < inCalcVec.x) && (inBaseVecTwo.x > inCalcVec.x)) || 
+		 ((inBaseVecOne.x > inCalcVec.x) && (inBaseVecTwo.x < inCalcVec.x)))
+	{
+		if(((inBaseVecOne.y < inCalcVec.y) && (inBaseVecTwo.y > inCalcVec.y)) || 
+			((inBaseVecOne.y > inCalcVec.y) && (inBaseVecTwo.y < inCalcVec.y)))
+		{
+			return 1;
+		}
+	}
+	
+	return 0;
+}
+
+uint8_t AlarmArea_ReadFromFlash(int index, vec3d* inBaseVecOne, vec3d* inBaseVecTwo)
+{
+	u16 usFlag = 0;
+	STMFLASH_Read(ALARM_FLAG_ADDR+index*2, &usFlag, 1);
+	if (1 == usFlag)
+	{
+		STMFLASH_Read(ALARM_DATA_ADDR+index*sizeof(vec3d)*2, (u16*)inBaseVecOne, sizeof(vec3d)/2);
+		STMFLASH_Read(ALARM_DATA_ADDR+index*sizeof(vec3d)*2+sizeof(vec3d), (u16*)inBaseVecTwo, sizeof(vec3d)/2);
+		return 1;
+	}	
+	return 0;
+}
+
+void AlarmArea_WriteToFlash(int index, vec3d* inBaseVecOne, vec3d* inBaseVecTwo)
+{
+	u16 usFlag = 0;
+	STMFLASH_Write(ALARM_FLAG_ADDR+index*2, &usFlag, 1);
+	
+	STMFLASH_Write(ALARM_DATA_ADDR+index*sizeof(vec3d)*2, (u16*)inBaseVecOne, sizeof(vec3d)/2);
+	STMFLASH_Write(ALARM_DATA_ADDR+index*sizeof(vec3d)*2+sizeof(vec3d), (u16*)inBaseVecTwo, sizeof(vec3d)/2);
+	
+	usFlag = 1;
+	STMFLASH_Write(ALARM_FLAG_ADDR+index*2, &usFlag, 1);
+}
+
+void AlarmArea_Init(void)
+{
+	int i=0;
+	for (i=0;i<4;i++)
+	{
+		isAlarmValid[i]=AlarmArea_ReadFromFlash(i, &alarm[i][0], &alarm[i][1]);
+	}
+}
